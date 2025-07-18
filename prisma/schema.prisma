@@ -1,0 +1,143 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model LegalCase {
+  id              String   @id @default(cuid())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Client Information
+  clientName      String?  // Name/Nickname (optional)
+  clientEmail     String?  // For contact purposes
+  clientPhone     String?  // For contact purposes
+  
+  // Case Details
+  legalIssue      String   // Type of legal issue (Family Law, Criminal Law, etc.)
+  caseDescription String   @db.Text // Detailed description of the case
+  location        String?  // Client's location (optional)
+  
+  // Case Status
+  status          CaseStatus @default(DRAFT)
+  urgency         UrgencyLevel @default(MEDIUM)
+  
+  // Professional Assignment
+  assignedTo      String?  // ID of the legal professional who accepted the case
+  assignedAt      DateTime?
+  assignedProfessional LegalProfessional? @relation("ProfessionalCases", fields: [assignedTo], references: [id])
+  
+  // Case Timeline
+  estimatedDuration String? // e.g., "3-6 months"
+  postedDate      DateTime @default(now())
+  
+  // Compensation
+  compensationMin Float?   // Minimum compensation amount
+  compensationMax Float?   // Maximum compensation amount
+  compensationCurrency String @default("USD")
+  
+  // Attachments
+  attachments     Attachment[]
+  
+  // Case History
+  caseHistory     CaseHistory[]
+  
+  // Tags for categorization (stored as JSON string)
+  tags           String? // JSON string of tags for better categorization
+  
+  @@map("legal_cases")
+}
+
+model Attachment {
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  
+  // File Information
+  fileName    String
+  fileSize    Int       // Size in bytes
+  fileType    String    // MIME type
+  fileUrl     String    // URL to the stored file
+  
+  // Relationship
+  legalCaseId String
+  legalCase   LegalCase @relation(fields: [legalCaseId], references: [id], onDelete: Cascade)
+  
+  @@map("attachments")
+}
+
+model CaseHistory {
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  
+  // Action Information
+  action      String    // e.g., "CREATED", "ASSIGNED", "STATUS_CHANGED"
+  description String    @db.Text // Detailed description of the action
+  performedBy String?   // ID of the user who performed the action
+  
+  // Relationship
+  legalCaseId String
+  legalCase   LegalCase @relation(fields: [legalCaseId], references: [id], onDelete: Cascade)
+  
+  @@map("case_history")
+}
+
+model LegalProfessional {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Personal Information
+  firstName   String
+  lastName    String
+  email       String   @unique
+  phone       String?
+  
+  // Authentication
+  password    String   // Hashed password
+  
+  // Professional Information
+  specialization String? // JSON string of legal specializations
+  yearsOfExperience Int
+  
+  // Location
+  location    String
+  
+  // Availability
+  isAvailable Boolean @default(true)
+  
+  // Verification
+  isVerified  Boolean @default(false)
+  verifiedAt  DateTime?
+  
+  // Assigned Cases
+  assignedCases LegalCase[] @relation("ProfessionalCases")
+  
+  @@map("legal_professionals")
+}
+
+// Enums
+enum CaseStatus {
+  DRAFT
+  POSTED
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum UrgencyLevel {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
