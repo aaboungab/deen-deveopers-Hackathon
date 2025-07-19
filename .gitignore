@@ -11,6 +11,8 @@
 !.yarn/versions
 /prisma/migrations
 prisma/migrations/
+*-lock.yaml
+*-lock.json
 
 # testing
 /coverage
