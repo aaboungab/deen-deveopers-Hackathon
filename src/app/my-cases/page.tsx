@@ -23,19 +23,24 @@ export default function CasesPage() {
     const [rejectedCases, setRejectedCases] = useState<Case[]>([]);
     const [showDetails, setShowDetails] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [role, setRole] = useState<string | null>(null);
     const router = useRouter();
 
     const [cases, setCases] = useState<Case[]>([]);
     const [isLoadingCases, setIsLoadingCases] = useState(true);
 
-    const role = localStorage.getItem("role") as string
 
     const isProf = role === 'professional'
+
+
 
     // Fetch cases from the API
     useEffect(() => {
 
         const userData = JSON.parse(localStorage.getItem('user') || '{}');
+
+        const storedRole = localStorage.getItem('role');
+        setRole(storedRole);
 
         const fetchCases = async () => {
             try {
