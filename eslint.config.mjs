@@ -41,6 +41,7 @@ export default [
       // React rules
       'react/no-unescaped-entities': ['warn'], // Prevent invalid characters in JSX
       'react/react-in-jsx-scope': 'off', // Not needed with Next.js
+      'prefer-const': 'warn',
 
       // TypeScript rules
       '@typescript-eslint/no-explicit-any': 'warn', // Discourage any

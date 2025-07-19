@@ -38,14 +38,15 @@ import { prisma } from '@/lib/prisma';
 //   }
 // }
 
-
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: NextRequest) {
   try {
+    // Extract the ID from the URL
+    const url = new URL(req.url);
+    const segments = url.pathname.split('/');
+    const id = segments[segments.length - 1];
+
     const caseItem = await prisma.legalCase.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         attachments: true,
         caseHistory: true,
@@ -66,86 +67,87 @@ export async function GET(
 }
 
 
-// PUT /api/cases/[id] - Update a case (e.g., assign to professional)
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const caseId = params.id;
-    const body = await request.json();
 
-    const {
-      status,
-      assignedTo,
-      urgency,
-      estimatedDuration,
-      compensationMin,
-      compensationMax,
-    } = body;
+// // PUT /api/cases/[id] - Update a case (e.g., assign to professional)
+// export async function PUT(
+//   request: NextRequest,
+//   { params }: { params: { id: string } }
+// ) {
+//   try {
+//     const caseId = params.id;
+//     const body = await request.json();
 
-    const updateData: any = {};
+//     const {
+//       status,
+//       assignedTo,
+//       urgency,
+//       estimatedDuration,
+//       compensationMin,
+//       compensationMax,
+//     } = body;
+
+//     const updateData: any = {};
     
-    if (status) updateData.status = status;
-    if (assignedTo) {
-      updateData.assignedTo = assignedTo;
-      updateData.assignedAt = new Date();
-    }
-    if (urgency) updateData.urgency = urgency;
-    if (estimatedDuration) updateData.estimatedDuration = estimatedDuration;
-    if (compensationMin !== undefined) updateData.compensationMin = compensationMin;
-    if (compensationMax !== undefined) updateData.compensationMax = compensationMax;
+//     if (status) updateData.status = status;
+//     if (assignedTo) {
+//       updateData.assignedTo = assignedTo;
+//       updateData.assignedAt = new Date();
+//     }
+//     if (urgency) updateData.urgency = urgency;
+//     if (estimatedDuration) updateData.estimatedDuration = estimatedDuration;
+//     if (compensationMin !== undefined) updateData.compensationMin = compensationMin;
+//     if (compensationMax !== undefined) updateData.compensationMax = compensationMax;
 
-    const updatedCase = await prisma.legalCase.update({
-      where: { id: caseId },
-      data: {
-        ...updateData,
-        caseHistory: {
-          create: {
-            action: 'UPDATED',
-            description: `Case was updated: ${Object.keys(updateData).join(', ')}`,
-          },
-        },
-      },
-      include: {
-        attachments: true,
-        caseHistory: {
-          orderBy: {
-            createdAt: 'desc',
-          },
-          take: 5,
-        },
-      },
-    });
+//     const updatedCase = await prisma.legalCase.update({
+//       where: { id: caseId },
+//       data: {
+//         ...updateData,
+//         caseHistory: {
+//           create: {
+//             action: 'UPDATED',
+//             description: `Case was updated: ${Object.keys(updateData).join(', ')}`,
+//           },
+//         },
+//       },
+//       include: {
+//         attachments: true,
+//         caseHistory: {
+//           orderBy: {
+//             createdAt: 'desc',
+//           },
+//           take: 5,
+//         },
+//       },
+//     });
 
-    return NextResponse.json(updatedCase);
-  } catch (error) {
-    console.error('Error updating case:', error);
-    return NextResponse.json(
-      { error: 'Failed to update case' },
-      { status: 500 }
-    );
-  }
-}
+//     return NextResponse.json(updatedCase);
+//   } catch (error) {
+//     console.error('Error updating case:', error);
+//     return NextResponse.json(
+//       { error: 'Failed to update case' },
+//       { status: 500 }
+//     );
+//   }
+// }
 
-// DELETE /api/cases/[id] - Delete a case
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const caseId = params.id;
+// // DELETE /api/cases/[id] - Delete a case
+// export async function DELETE(
+//   request: NextRequest,
+//   { params }: { params: { id: string } }
+// ) {
+//   try {
+//     const caseId = params.id;
 
-    await prisma.legalCase.delete({
-      where: { id: caseId },
-    });
+//     await prisma.legalCase.delete({
+//       where: { id: caseId },
+//     });
 
-    return NextResponse.json({ message: 'Case deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting case:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete case' },
-      { status: 500 }
-    );
-  }
-} 
+//     return NextResponse.json({ message: 'Case deleted successfully' });
+//   } catch (error) {
+//     console.error('Error deleting case:', error);
+//     return NextResponse.json(
+//       { error: 'Failed to delete case' },
+//       { status: 500 }
+//     );
+//   }
+// } 
