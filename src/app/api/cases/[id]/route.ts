@@ -4,10 +4,11 @@ import { prisma } from '@/lib/prisma';
 // GET /api/cases/[id] - Get a specific case
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
-    const caseId = params.id;
+    const caseId = id;
 
     const legalCase = await prisma.legalCase.findUnique({
       where: { id: caseId },
@@ -41,10 +42,11 @@ export async function GET(
 // PUT /api/cases/[id] - Update a case (e.g., assign to professional)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
-    const caseId = params.id;
+    const caseId = id;
     const body = await request.json();
 
     const {
@@ -56,7 +58,7 @@ export async function PUT(
       compensationMax,
     } = body;
 
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     
     if (status) updateData.status = status;
     if (assignedTo) {
@@ -103,10 +105,11 @@ export async function PUT(
 // DELETE /api/cases/[id] - Delete a case
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
-    const caseId = params.id;
+    const caseId = id;
 
     await prisma.legalCase.delete({
       where: { id: caseId },

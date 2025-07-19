@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { X, Paperclip, Check, X as XIcon, Plus } from 'lucide-react';
-import Sidebar from '@/components/Sidebar';
+import Sidebar from '@/components/layout/Sidebar';
+import { Check, Paperclip, Plus, X, X as XIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 interface CaseForm {
   id: string;
@@ -11,23 +11,23 @@ interface CaseForm {
   clientName: string;
   clientEmail: string;
   clientPhone: string;
-  
+
   // Case Details
   legalIssue: string;
   caseDescription: string;
   location: string;
-  
+
   // Case Status
   urgency: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-  
+
   // Case Timeline
   estimatedDuration: string;
-  
+
   // Compensation
   compensationMin: string;
   compensationMax: string;
   compensationCurrency: string;
-  
+
   // Additional
   tags: string;
   attachments: File[];
@@ -78,17 +78,17 @@ export default function SubmitCasePage() {
     // Check if user is logged in
     const authToken = localStorage.getItem('authToken');
     const userData = localStorage.getItem('user');
-    
+
     if (!authToken || !userData) {
       router.push('/auth/login');
       return;
     }
-    
+
     try {
       // Verify the user data is valid JSON
       JSON.parse(userData);
       setIsLoading(false);
-    } catch (error) {
+    } catch {
       console.error('Invalid user data, redirecting to login');
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
@@ -118,8 +118,8 @@ export default function SubmitCasePage() {
     'Other',
   ];
 
-  const updateForm = (id: string, field: keyof CaseForm, value: any) => {
-    setForms(forms.map(form => 
+  const updateForm = (id: string, field: keyof CaseForm, value: string | string[]) => {
+    setForms(forms.map(form =>
       form.id === id ? { ...form, [field]: value } : form
     ));
   };
@@ -177,11 +177,11 @@ export default function SubmitCasePage() {
         if (response.ok) {
           const result = await response.json();
           console.log('Case submitted successfully:', result);
-          
+
           // Move form to posted list
           setPosted([...posted, form]);
           setForms(forms.filter(f => f.id !== id));
-          
+
           // Show success message
           alert('Case submitted successfully! You can now view it in the Review Cases section.');
         } else {
@@ -209,7 +209,7 @@ export default function SubmitCasePage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <Sidebar />
-      
+
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800">unseen.</h1>
@@ -425,11 +425,10 @@ export default function SubmitCasePage() {
                   <button
                     onClick={() => postForm(form.id)}
                     disabled={!form.legalIssue || !form.caseDescription}
-                    className={`px-6 py-2 rounded-md transition-colors ${
-                      !form.legalIssue || !form.caseDescription
+                    className={`px-6 py-2 rounded-md transition-colors ${!form.legalIssue || !form.caseDescription
                         ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                         : 'bg-green-600 text-white hover:bg-green-700'
-                    }`}
+                      }`}
                   >
                     Post
                   </button>

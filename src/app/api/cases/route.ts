@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Get all posted cases that haven't been assigned yet
     const cases = await prisma.legalCase.findMany({
@@ -33,17 +33,17 @@ export async function GET(request: NextRequest) {
     });
 
     // Transform the data to match the expected format
-    const transformedCases = cases.map((caseItem: any) => ({
-      id: caseItem.id,
-      name: caseItem.clientName || 'Anonymous',
-      legalIssue: caseItem.legalIssue,
-      caseDescription: caseItem.caseDescription,
-      location: caseItem.location || 'Location not specified',
-      postedDate: caseItem.postedDate.toISOString().split('T')[0],
-      urgency: caseItem.urgency.toLowerCase(),
-      estimatedDuration: caseItem.estimatedDuration || 'Not specified',
+    const transformedCases = cases.map((caseItem) => ({
+      id: caseItem.id as string,
+      name: (caseItem.clientName as string) || 'Anonymous',
+      legalIssue: caseItem.legalIssue as string,
+      caseDescription: caseItem.caseDescription as string,
+      location: (caseItem.location as string) || 'Location not specified',
+      postedDate: (caseItem.postedDate as Date).toISOString().split('T')[0],
+      urgency: (caseItem.urgency as string).toLowerCase(),
+      estimatedDuration: (caseItem.estimatedDuration as string) || 'Not specified',
       compensation: caseItem.compensationMin && caseItem.compensationMax 
-        ? `${caseItem.compensationCurrency} ${caseItem.compensationMin} - ${caseItem.compensationMax}`
+        ? `${caseItem.compensationCurrency as string} ${caseItem.compensationMin} - ${caseItem.compensationMax}`
         : 'Not specified',
     }));
 

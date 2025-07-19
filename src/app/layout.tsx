@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Unseen App',
+  title: 'Unseen',
   description: 'Swiping right for justice',
 };
 

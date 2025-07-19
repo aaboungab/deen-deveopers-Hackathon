@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Eye, EyeOff, ArrowLeft, Scale, User, Mail, Phone, MapPin, Award, Clock } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft, Scale, User, Mail, Phone, MapPin, Clock } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SignupPage() {
