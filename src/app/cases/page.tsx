@@ -86,7 +86,7 @@ export default function CasesPage() {
       // Verify the user data is valid JSON
       JSON.parse(userData);
       setIsLoading(false);
-    } catch (error) {
+    } catch {
       console.error('Invalid user data, redirecting to login');
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
@@ -292,7 +292,7 @@ export default function CasesPage() {
         <div className="max-w-2xl mx-auto text-center pt-20">
           <Heart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-800 mb-2">No More Cases</h2>
-          <p className="text-gray-600 mb-8">You've reviewed all available cases. Check back later for new submissions.</p>
+          <p className="text-gray-600 mb-8">You&apos;ve reviewed all available cases. Check back later for new submissions.</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white rounded-lg p-6 shadow-sm">

@@ -88,7 +88,7 @@ export default function SubmitCasePage() {
       // Verify the user data is valid JSON
       JSON.parse(userData);
       setIsLoading(false);
-    } catch (error) {
+    } catch {
       console.error('Invalid user data, redirecting to login');
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
@@ -118,7 +118,7 @@ export default function SubmitCasePage() {
     'Other',
   ];
 
-  const updateForm = (id: string, field: keyof CaseForm, value: any) => {
+  const updateForm = (id: string, field: keyof CaseForm, value: string | string[]) => {
     setForms(forms.map(form => 
       form.id === id ? { ...form, [field]: value } : form
     ));

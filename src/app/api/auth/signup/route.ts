@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Remove password from response
-    const { password: _, ...userWithoutPassword } = newProfessional;
+    const { password: _unused, ...userWithoutPassword } = newProfessional;
 
     return NextResponse.json(
       { 

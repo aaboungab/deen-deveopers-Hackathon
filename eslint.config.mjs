@@ -19,10 +19,10 @@ import { fileURLToPath } from 'url';
 import { FlatCompat } from '@eslint/eslintrc';
 
 const filename = fileURLToPath(import.meta.url);
-const dirname = dirname(filename);
+const currentDir = dirname(filename);
 
 const compat = new FlatCompat({
-  baseDirectory: dirname,
+  baseDirectory: currentDir,
 });
 
 export default [

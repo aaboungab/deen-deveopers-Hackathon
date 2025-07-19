@@ -1,26 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Heart, Scale, Compass, Shield, Users, CheckCircle, Lock, Check, HeadphonesIcon, HelpCircle, LogOut, User, X, MapPin, Calendar, Eye, ArrowLeft, Phone, Mail, Clock, DollarSign, FileText } from 'lucide-react';
+import { Heart, Scale, Shield, Users, CheckCircle, Lock, Check, HeadphonesIcon, HelpCircle } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
-import { useRouter } from 'next/navigation';
 
-interface Case {
-  id: string;
-  name: string;
-  legalIssue: string;
-  caseDescription: string;
-  location: string;
-  postedDate: string;
-  urgency: 'low' | 'medium' | 'high';
-  estimatedDuration: string;
-  compensation: string;
-}
+
+
 
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
-  const router = useRouter();
+  const [user, setUser] = useState<Record<string, unknown> | null>(null);
 
   useEffect(() => {
     // Check if user is logged in
@@ -29,7 +18,7 @@ export default function HomePage() {
     if (authToken && userData) {
       try {
         setUser(JSON.parse(userData));
-      } catch (error) {
+      } catch {
         setUser(null);
       }
     } else {
@@ -99,7 +88,7 @@ export default function HomePage() {
                           <a href="/auth/signup" className="flex-1 bg-black hover:bg-gray-800 transition-colors p-8 rounded-lg text-left group">
             <div className="flex flex-col items-center text-center">
               <Scale className="w-8 h-8 text-white mb-4" />
-              <h3 className="text-2xl font-bold text-white mb-2">I'm a Legal Professional</h3>
+              <h3 className="text-2xl font-bold text-white mb-2">I&apos;m a Legal Professional</h3>
               <p className="text-white/80 text-sm">Join our network and help those in need of legal assistance.</p>
             </div>
           </a>
