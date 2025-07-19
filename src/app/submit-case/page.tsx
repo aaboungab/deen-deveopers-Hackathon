@@ -11,23 +11,23 @@ interface CaseForm {
   clientName: string;
   clientEmail: string;
   clientPhone: string;
-  
+
   // Case Details
   legalIssue: string;
   caseDescription: string;
   location: string;
-  
+
   // Case Status
   urgency: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-  
+
   // Case Timeline
   estimatedDuration: string;
-  
+
   // Compensation
   compensationMin: string;
   compensationMax: string;
   compensationCurrency: string;
-  
+
   // Additional
   tags: string;
   attachments: File[];
@@ -77,13 +77,18 @@ export default function SubmitCasePage() {
   useEffect(() => {
     // Check if user is logged in
     const authToken = localStorage.getItem('authToken');
+    const role = localStorage.getItem('role');
     const userData = localStorage.getItem('user');
-    
+
     if (!authToken || !userData) {
       router.push('/auth/login');
       return;
     }
-    
+
+    if (role !== 'client') {
+      router.push('/')
+    }
+
     try {
       // Verify the user data is valid JSON
       JSON.parse(userData);
@@ -119,7 +124,7 @@ export default function SubmitCasePage() {
   ];
 
   const updateForm = (id: string, field: keyof CaseForm, value: any) => {
-    setForms(forms.map(form => 
+    setForms(forms.map(form =>
       form.id === id ? { ...form, [field]: value } : form
     ));
   };
@@ -150,18 +155,28 @@ export default function SubmitCasePage() {
 
   const postForm = async (id: string) => {
     const form = forms.find(f => f.id === id);
+    const token = localStorage.getItem('authToken');
+    const userData = localStorage.getItem('user');
+    const clientId = userData ? JSON.parse(userData).id : null;
+
+    if (!token || !clientId) {
+      alert('You must be logged in to submit a case.');
+      return;
+    }
+
     if (form) {
       try {
-        // Send the case to the database
         const response = await fetch('/api/cases/submit', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
           },
           body: JSON.stringify({
-            clientName: form.clientName,
-            clientEmail: form.clientEmail,
-            clientPhone: form.clientPhone,
+            clientId,
+            // clientName: form.clientName,
+            // clientEmail: form.clientEmail,
+            // clientPhone: form.clientPhone,
             legalIssue: form.legalIssue,
             caseDescription: form.caseDescription,
             location: form.location,
@@ -177,11 +192,11 @@ export default function SubmitCasePage() {
         if (response.ok) {
           const result = await response.json();
           console.log('Case submitted successfully:', result);
-          
+
           // Move form to posted list
           setPosted([...posted, form]);
           setForms(forms.filter(f => f.id !== id));
-          
+
           // Show success message
           alert('Case submitted successfully! You can now view it in the Review Cases section.');
         } else {
@@ -209,7 +224,7 @@ export default function SubmitCasePage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <Sidebar />
-      
+
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800">unseen.</h1>
@@ -425,11 +440,10 @@ export default function SubmitCasePage() {
                   <button
                     onClick={() => postForm(form.id)}
                     disabled={!form.legalIssue || !form.caseDescription}
-                    className={`px-6 py-2 rounded-md transition-colors ${
-                      !form.legalIssue || !form.caseDescription
+                    className={`px-6 py-2 rounded-md transition-colors ${!form.legalIssue || !form.caseDescription
                         ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                         : 'bg-green-600 text-white hover:bg-green-700'
-                    }`}
+                      }`}
                   >
                     Post
                   </button>

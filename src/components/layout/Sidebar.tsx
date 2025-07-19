@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, Home, Plus, MessageCircle, Scale, LogOut } from 'lucide-react';
+import { Home, Plus, Scale, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<Record<string, unknown> | null>(null);
 
   useEffect(() => {
     // Check if user is logged in
@@ -38,7 +38,6 @@ export default function Sidebar() {
     { icon: Home, href: '/', label: 'Home' },
     { icon: Plus, href: '/submit-case', label: 'Submit Case' },
     { icon: Scale, href: '/cases', label: 'Review Cases' },
-    { icon: MessageCircle, href: '/my-cases', label: 'My Cases' },
   ] : [
     { icon: Home, href: '/', label: 'Home' },
   ];

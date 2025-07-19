@@ -76,9 +76,15 @@ export default function CasesPage() {
     // Check if user is logged in
     const authToken = localStorage.getItem('authToken');
     const userData = localStorage.getItem('user');
+    const role = localStorage.getItem('role');
     
     if (!authToken || !userData) {
       router.push('/auth/login');
+      return;
+    }
+
+    if (role === 'client') {
+      router.push('/');
       return;
     }
     
