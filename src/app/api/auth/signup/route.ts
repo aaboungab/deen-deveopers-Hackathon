@@ -1,3 +1,85 @@
+// import { NextRequest, NextResponse } from 'next/server';
+// import bcrypt from 'bcryptjs';
+// import { prisma } from '@/lib/prisma';
+
+// export async function POST(request: NextRequest) {
+//   try {
+//     const body = await request.json();
+    
+//     const {
+//       firstName,
+//       lastName,
+//       email,
+//       phone,
+//       password,
+//       specialization,
+//       yearsOfExperience,
+//       location,
+//     } = body;
+
+//     // Validate required fields
+//     if (!firstName || !lastName || !email || !password || !yearsOfExperience || !location) {
+//       return NextResponse.json(
+//         { error: 'Missing required fields' },
+//         { status: 400 }
+//       );
+//     }
+
+//     // Check if email already exists
+//     const existingUser = await prisma.legalProfessional.findUnique({
+//       where: { email },
+//     });
+
+//     if (existingUser) {
+//       return NextResponse.json(
+//         { error: 'Email already registered' },
+//         { status: 400 }
+//       );
+//     }
+
+
+
+//     // Hash password
+//     const saltRounds = 12;
+//     const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+//     // Create new legal professional
+//     const newProfessional = await prisma.legalProfessional.create({
+//       data: {
+//         firstName,
+//         lastName,
+//         email,
+//         phone,
+//         password: hashedPassword,
+//         specialization: specialization ? JSON.stringify(specialization) : null,
+//         yearsOfExperience,
+//         location,
+//         isAvailable: true,
+//         isVerified: true, // Auto-verified for now
+//       },
+//     });
+
+//     // Remove password from response
+//     const { password: _, ...userWithoutPassword } = newProfessional;
+
+//     return NextResponse.json(
+//       { 
+//         message: 'Account created successfully',
+//         user: userWithoutPassword 
+//       },
+//       { status: 201 }
+//     );
+//   } catch (error) {
+//     console.error('Error creating account:', error);
+//     return NextResponse.json(
+//       { error: 'Failed to create account' },
+//       { status: 500 }
+//     );
+//   }
+// } 
+
+
+
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
@@ -5,8 +87,9 @@ import { prisma } from '@/lib/prisma';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     const {
+      userType, // 'professional' or 'client'
       firstName,
       lastName,
       email,
@@ -17,63 +100,69 @@ export async function POST(request: NextRequest) {
       location,
     } = body;
 
-    // Validate required fields
-    if (!firstName || !lastName || !email || !password || !yearsOfExperience || !location) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+    if (!userType || !['professional', 'client'].includes(userType)) {
+      return NextResponse.json({ error: 'Invalid user type' }, { status: 400 });
     }
 
-    // Check if email already exists
-    const existingUser = await prisma.legalProfessional.findUnique({
-      where: { email },
-    });
-
-    if (existingUser) {
-      return NextResponse.json(
-        { error: 'Email already registered' },
-        { status: 400 }
-      );
+    if (!firstName || !lastName || !email || !password || !location) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    // Check if email exists in either model
+    const existingProfessional = await prisma.legalProfessional.findUnique({ where: { email } });
+    const existingClient = await prisma.legalClient.findUnique({ where: { email } });
 
+    if (existingProfessional || existingClient) {
+      return NextResponse.json({ error: 'Email already registered' }, { status: 400 });
+    }
 
-    // Hash password
-    const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create new legal professional
-    const newProfessional = await prisma.legalProfessional.create({
-      data: {
-        firstName,
-        lastName,
-        email,
-        phone,
-        password: hashedPassword,
-        specialization: specialization ? JSON.stringify(specialization) : null,
-        yearsOfExperience,
-        location,
-        isAvailable: true,
-        isVerified: true, // Auto-verified for now
-      },
-    });
+    if (userType === 'professional') {
+      if (!yearsOfExperience || !specialization) {
+        return NextResponse.json({ error: 'Missing professional fields' }, { status: 400 });
+      }
 
-    // Remove password from response
-    const { password: _, ...userWithoutPassword } = newProfessional;
+      const professional = await prisma.legalProfessional.create({
+        data: {
+          firstName,
+          lastName,
+          email,
+          phone,
+          password: hashedPassword,
+          location,
+          specialization: JSON.stringify(specialization),
+          yearsOfExperience,
+          isAvailable: true,
+          isVerified: true,
+        },
+      });
 
-    return NextResponse.json(
-      { 
-        message: 'Account created successfully',
-        user: userWithoutPassword 
-      },
-      { status: 201 }
-    );
+      const { password: _, ...userWithoutPassword } = professional;
+      return NextResponse.json(
+        { message: 'Professional account created', user: userWithoutPassword },
+        { status: 201 }
+      );
+    } else {
+      const client = await prisma.legalClient.create({
+        data: {
+          firstName,
+          lastName,
+          email,
+          phone,
+          password: hashedPassword,
+          location,
+        },
+      });
+
+      const { password: _, ...userWithoutPassword } = client;
+      return NextResponse.json(
+        { message: 'Client account created', user: userWithoutPassword },
+        { status: 201 }
+      );
+    }
   } catch (error) {
-    console.error('Error creating account:', error);
-    return NextResponse.json(
-      { error: 'Failed to create account' },
-      { status: 500 }
-    );
+    console.error('Signup error:', error);
+    return NextResponse.json({ error: 'Failed to create account' }, { status: 500 });
   }
-} 
+}

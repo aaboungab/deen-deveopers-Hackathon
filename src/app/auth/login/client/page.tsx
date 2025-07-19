@@ -50,7 +50,6 @@ export default function LoginPage() {
 
       // Store the token in localStorage and cookie
       localStorage.setItem('authToken', data.token);
-      localStorage.setItem('role', data.role);
       localStorage.setItem('user', JSON.stringify(data.user));
       
       // Also set cookie for middleware

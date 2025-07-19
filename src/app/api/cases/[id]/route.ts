@@ -2,41 +2,69 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 // GET /api/cases/[id] - Get a specific case
+// export async function GET(
+//   request: NextRequest,
+//   { params }: { params: { id: string } }
+// ) {
+//   try {
+//     const caseId = params.id;
+
+//     const legalCase = await prisma.legalCase.findUnique({
+//       where: { id: caseId },
+//       include: {
+//         attachments: true,
+//         caseHistory: {
+//           orderBy: {
+//             createdAt: 'desc',
+//           },
+//         },
+//       },
+//     });
+
+//     if (!legalCase) {
+//       return NextResponse.json(
+//         { error: 'Case not found' },
+//         { status: 404 }
+//       );
+//     }
+
+//     return NextResponse.json(legalCase);
+//   } catch (error) {
+//     console.error('Error fetching case:', error);
+//     return NextResponse.json(
+//       { error: 'Failed to fetch case' },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+
 export async function GET(
-  request: NextRequest,
+  _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const caseId = params.id;
-
-    const legalCase = await prisma.legalCase.findUnique({
-      where: { id: caseId },
+    const caseItem = await prisma.legalCase.findUnique({
+      where: { id: params.id },
       include: {
         attachments: true,
-        caseHistory: {
-          orderBy: {
-            createdAt: 'desc',
-          },
-        },
+        caseHistory: true,
+        client: true,
+        assignedProfessional: true,
       },
     });
 
-    if (!legalCase) {
-      return NextResponse.json(
-        { error: 'Case not found' },
-        { status: 404 }
-      );
+    if (!caseItem) {
+      return NextResponse.json({ message: 'Case not found' }, { status: 404 });
     }
 
-    return NextResponse.json(legalCase);
+    return NextResponse.json(caseItem);
   } catch (error) {
-    console.error('Error fetching case:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch case' },
-      { status: 500 }
-    );
+    console.error('[GET /api/cases/:id]', error);
+    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   }
 }
+
 
 // PUT /api/cases/[id] - Update a case (e.g., assign to professional)
 export async function PUT(

@@ -38,6 +38,7 @@ export default function Sidebar() {
     { icon: Home, href: '/', label: 'Home' },
     { icon: Plus, href: '/submit-case', label: 'Submit Case' },
     { icon: Scale, href: '/cases', label: 'Review Cases' },
+    { icon: MessageCircle, href: '/my-cases', label: 'My Cases' },
   ] : [
     { icon: Home, href: '/', label: 'Home' },
   ];

@@ -18,30 +18,8 @@ export default function SignupPage() {
     phone: '',
     password: '',
     confirmPassword: '',
-    specialization: '',
-    yearsOfExperience: '',
     location: '',
   });
-
-  const specializations = [
-    'Family Law',
-    'Criminal Law',
-    'Civil Law',
-    'Employment Law',
-    'Property Law',
-    'Contract Law',
-    'Immigration Law',
-    'Corporate Law',
-    'Tax Law',
-    'Intellectual Property',
-    'Environmental Law',
-    'Bankruptcy Law',
-    'Personal Injury',
-    'Real Estate Law',
-    'Other'
-  ];
-
-
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -77,14 +55,12 @@ export default function SignupPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userType: "professional",
+          userType: "client",
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,
           phone: formData.phone,
           password: formData.password,
-          specialization: formData.specialization ? [formData.specialization] : [],
-          yearsOfExperience: parseInt(formData.yearsOfExperience),
           location: formData.location,
         }),
       });
@@ -263,25 +239,7 @@ export default function SignupPage() {
             </div>
 
             {/* Professional Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <Clock className="w-4 h-4 inline mr-1" />
-                  Years of Experience *
-                </label>
-                <input
-                  type="number"
-                  name="yearsOfExperience"
-                  value={formData.yearsOfExperience}
-                  onChange={handleInputChange}
-                  required
-                  min="0"
-                  max="50"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter years of experience"
-                />
-              </div>
-
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <MapPin className="w-4 h-4 inline mr-1" />
@@ -297,27 +255,6 @@ export default function SignupPage() {
                   placeholder="City, State"
                 />
               </div>
-            </div>
-
-            {/* Specialization */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Primary Specialization *
-              </label>
-              <select
-                name="specialization"
-                value={formData.specialization}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select specialization</option>
-                {specializations.map((spec) => (
-                  <option key={spec} value={spec}>
-                    {spec}
-                  </option>
-                ))}
-              </select>
             </div>
 
 
