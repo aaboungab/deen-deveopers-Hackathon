@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Check, X, Heart, MapPin, Calendar, User, Scale, Eye, ArrowLeft, Phone, Mail, Clock, DollarSign, FileText } from 'lucide-react';
-import Sidebar from '@/components/Sidebar';
+import Sidebar from '@/components/layout/Sidebar';
+import { ArrowLeft, Calendar, Check, Clock, DollarSign, Eye, FileText, Heart, Mail, MapPin, Phone, Scale, User, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 interface Case {
   id: string;
@@ -76,12 +76,12 @@ export default function CasesPage() {
     // Check if user is logged in
     const authToken = localStorage.getItem('authToken');
     const userData = localStorage.getItem('user');
-    
+
     if (!authToken || !userData) {
       router.push('/auth/login');
       return;
     }
-    
+
     try {
       // Verify the user data is valid JSON
       JSON.parse(userData);
@@ -146,7 +146,7 @@ export default function CasesPage() {
     return (
       <div className="min-h-screen bg-gray-50 p-6">
         <Sidebar />
-        
+
         <div className="max-w-4xl mx-auto">
           {/* Back Button */}
           <button
@@ -189,8 +189,8 @@ export default function CasesPage() {
                   <Scale className="w-6 h-6 text-green-600" />
                   <h2 className="text-2xl font-bold text-gray-800">Legal Issue</h2>
                 </div>
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <p className="text-lg font-semibold text-green-800">{currentCase.legalIssue}</p>
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <p className="text-lg font-semibold text-green-800">{currentCase.legalIssue}</p>
                 </div>
               </div>
 
@@ -270,7 +270,7 @@ export default function CasesPage() {
                 <X className="w-5 h-5" />
                 <span>Skip Case</span>
               </button>
-              
+
               <button
                 onClick={handleAccept}
                 className="px-8 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg flex items-center space-x-2 shadow-lg hover:shadow-xl transition-all duration-200"
@@ -293,7 +293,7 @@ export default function CasesPage() {
           <Heart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-800 mb-2">No More Cases</h2>
           <p className="text-gray-600 mb-8">You&apos;ve reviewed all available cases. Check back later for new submissions.</p>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-green-600 mb-2">Accepted Cases</h3>
@@ -312,7 +312,7 @@ export default function CasesPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <Sidebar />
-      
+
       {/* Header */}
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
@@ -395,7 +395,7 @@ export default function CasesPage() {
                 <span>View Details</span>
               </button>
             </div>
-            
+
             {/* Accept/Reject Buttons */}
             <div className="flex justify-center space-x-8">
               <button
@@ -404,7 +404,7 @@ export default function CasesPage() {
               >
                 <X className="w-8 h-8" />
               </button>
-              
+
               <button
                 onClick={handleAccept}
                 className="w-16 h-16 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-110"
