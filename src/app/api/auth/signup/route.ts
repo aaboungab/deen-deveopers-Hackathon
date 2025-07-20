@@ -83,6 +83,39 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
+import { Tag } from '@prisma/client';
+
+// Helper function to convert frontend specialization to Tag enum
+function convertToTagEnum(specialization: string): Tag | null {
+  const mapping: { [key: string]: Tag } = {
+    'Family Law': Tag.FAMILY_LAW,
+    'Criminal Law': Tag.CRIMINAL_LAW,
+    'Civil Law': Tag.CIVIL_LAW,
+    'Employment Law': Tag.EMPLOYMENT_LAW,
+    'Property Law': Tag.PROPERTY_LAW,
+    'Real Estate Law': Tag.PROPERTY_LAW, // Map to Property Law
+    'Contract Law': Tag.CONTRACT_LAW,
+    'Immigration Law': Tag.IMMIGRATION_LAW,
+    'Corporate Law': Tag.CONTRACT_LAW, // Map to Contract Law
+    'Tax Law': Tag.CONTRACT_LAW, // Map to Contract Law
+    'Intellectual Property': Tag.CONTRACT_LAW, // Map to Contract Law
+    'Environmental Law': Tag.CIVIL_LAW, // Map to Civil Law
+    'Bankruptcy Law': Tag.CIVIL_LAW, // Map to Civil Law
+    'Personal Injury': Tag.CIVIL_LAW, // Map to Civil Law
+    'Other': Tag.OTHER,
+    // Also handle the enum values directly
+    'FAMILY_LAW': Tag.FAMILY_LAW,
+    'CRIMINAL_LAW': Tag.CRIMINAL_LAW,
+    'CIVIL_LAW': Tag.CIVIL_LAW,
+    'EMPLOYMENT_LAW': Tag.EMPLOYMENT_LAW,
+    'PROPERTY_LAW': Tag.PROPERTY_LAW,
+    'CONTRACT_LAW': Tag.CONTRACT_LAW,
+    'IMMIGRATION_LAW': Tag.IMMIGRATION_LAW,
+    'OTHER': Tag.OTHER,
+  };
+  
+  return mapping[specialization] || null;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -123,6 +156,20 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Missing professional fields' }, { status: 400 });
       }
 
+      // Convert specialization to proper Tag enum value
+      let tagValue;
+      if (Array.isArray(specialization)) {
+        // If it's an array, take the first value
+        const firstSpecialization = specialization[0];
+        tagValue = convertToTagEnum(firstSpecialization);
+      } else {
+        tagValue = convertToTagEnum(specialization);
+      }
+
+      if (!tagValue) {
+        return NextResponse.json({ error: 'Invalid specialization' }, { status: 400 });
+      }
+
       const professional = await prisma.legalProfessional.create({
         data: {
           firstName,
@@ -131,7 +178,7 @@ export async function POST(request: NextRequest) {
           phone,
           password: hashedPassword,
           location,
-          specialization: specialization,
+          specialization: tagValue,
           yearsOfExperience,
           isAvailable: true,
           isVerified: true,
