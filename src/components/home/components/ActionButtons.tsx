@@ -4,7 +4,7 @@ export default function ActionButtons() {
   return (
     <>
       <div className="flex flex-col md:flex-row gap-6 mb-8 w-full max-w-4xl">
-        <a href="https://www.unseenbyamal.com/auth/signup/client" className="flex-1 bg-green-600 hover:bg-green-700 transition-colors p-8 rounded-lg text-left group">
+        <a href="/auth/signup/client" className="flex-1 bg-green-600 hover:bg-green-700 transition-colors p-8 rounded-lg text-left group">
           <div className="flex flex-col items-center text-center">
             <Heart className="w-8 h-8 text-white mb-4" />
             <h3 className="text-2xl font-bold text-white mb-2">I Need Legal Help</h3>
