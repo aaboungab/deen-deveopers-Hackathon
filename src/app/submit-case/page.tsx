@@ -69,9 +69,9 @@ export default function SubmitCasePage() {
     },
   ]);
 
-  const [drafts] = useState(['Unnamed 1', 'Unnamed 2', 'Hally Aziz']);
   const [posted, setPosted] = useState<CaseForm[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showSuccess, setShowSuccess] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -198,7 +198,8 @@ export default function SubmitCasePage() {
           setForms(forms.filter(f => f.id !== id));
 
           // Show success message
-          alert('Case submitted successfully! You can now view it in the Review Cases section.');
+          setShowSuccess(true);
+          setTimeout(() => setShowSuccess(false), 5000);
         } else {
           const error = await response.json();
           console.error('Failed to submit case:', error);
@@ -224,6 +225,16 @@ export default function SubmitCasePage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <Sidebar />
+
+      {/* Success Message */}
+      {showSuccess && (
+        <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+          <div className="flex items-center space-x-2">
+            <Check className="w-5 h-5" />
+            <span>Case submitted successfully!</span>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <div className="mb-8">
@@ -468,20 +479,8 @@ export default function SubmitCasePage() {
           </button>
         </div>
 
-        {/* Right Section - Drafts and Posted */}
+        {/* Right Section - Posted */}
         <div className="space-y-6">
-          <div className="bg-green-50 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Drafts:</h3>
-            <ul className="space-y-2">
-              {drafts.map((draft, index) => (
-                <li key={index} className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
-                  <span className="text-gray-700">{draft}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
           <div className="bg-green-50 rounded-lg p-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Posted:</h3>
             <div className="min-h-[200px] bg-white rounded-md border border-gray-200 p-4">
