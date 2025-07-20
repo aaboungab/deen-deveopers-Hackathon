@@ -24,21 +24,14 @@ export default function CasesPage() {
     const [showDetails, setShowDetails] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [role, setRole] = useState<string | null>(null);
-    const router = useRouter();
-
     const [cases, setCases] = useState<Case[]>([]);
     const [isLoadingCases, setIsLoadingCases] = useState(true);
 
+    const router = useRouter();
+    const isProf = role === 'professional';
 
-    const isProf = role === 'professional'
-
-
-
-    // Fetch cases from the API
     useEffect(() => {
-
         const userData = JSON.parse(localStorage.getItem('user') || '{}');
-
         const storedRole = localStorage.getItem('role');
         setRole(storedRole);
 
@@ -59,7 +52,6 @@ export default function CasesPage() {
         fetchCases();
     }, []);
 
-    // Refresh cases when the page becomes visible (useful after submitting a new case)
     useEffect(() => {
         const handleVisibilityChange = () => {
             if (!document.hidden) {
@@ -83,8 +75,9 @@ export default function CasesPage() {
     }, []);
 
     useEffect(() => {
-        // Check if user is logged in
+
         const authToken = localStorage.getItem('authToken');
+        const role = localStorage.getItem('role');
         const userData = localStorage.getItem('user');
 
         if (!authToken || !userData) {
@@ -92,17 +85,33 @@ export default function CasesPage() {
             return;
         }
 
+        if (role !== 'client') {
+            router.push('/')
+        }
+
         try {
-            // Verify the user data is valid JSON
             JSON.parse(userData);
             setIsLoading(false);
         } catch (error) {
-            console.error('Invalid user data, redirecting to login');
             localStorage.removeItem('authToken');
             localStorage.removeItem('user');
             router.push('/auth/login');
         }
     }, [router]);
+
+    // Add keyboard arrow navigation
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'ArrowRight' && currentCaseIndex < cases.length - 1) {
+                setCurrentCaseIndex((prev) => prev + 1);
+            } else if (e.key === 'ArrowLeft' && currentCaseIndex > 0) {
+                setCurrentCaseIndex((prev) => prev - 1);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [currentCaseIndex, cases.length]);
 
     if (isLoading || isLoadingCases) {
         return (
@@ -117,20 +126,18 @@ export default function CasesPage() {
 
     const currentCase = cases[currentCaseIndex];
 
-
-
     const handleAccept = () => {
         if (currentCase) {
-            setAcceptedCases([...acceptedCases, currentCase]);
-            setCurrentCaseIndex(currentCaseIndex + 1);
+            setAcceptedCases((prev) => [...prev, currentCase]);
+            setCurrentCaseIndex((prev) => Math.min(prev + 1, cases.length - 1));
             setShowDetails(false);
         }
     };
 
     const handleReject = () => {
         if (currentCase) {
-            setRejectedCases([...rejectedCases, currentCase]);
-            setCurrentCaseIndex(currentCaseIndex + 1);
+            setRejectedCases((prev) => [...prev, currentCase]);
+            setCurrentCaseIndex((prev) => Math.min(prev + 1, cases.length - 1));
             setShowDetails(false);
         }
     };
@@ -308,17 +315,6 @@ export default function CasesPage() {
                     <Heart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                     <h2 className="text-2xl font-bold text-gray-800 mb-2">No More Cases</h2>
                     <p className="text-gray-600 mb-8">You've reviewed all available cases. Check back later for new submissions.</p>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="bg-white rounded-lg p-6 shadow-sm">
-                            <h3 className="text-lg font-semibold text-green-600 mb-2">Accepted Cases</h3>
-                            <p className="text-3xl font-bold text-green-600">{acceptedCases.length}</p>
-                        </div>
-                        <div className="bg-white rounded-lg p-6 shadow-sm">
-                            <h3 className="text-lg font-semibold text-red-600 mb-2">Rejected Cases</h3>
-                            <p className="text-3xl font-bold text-red-600">{rejectedCases.length}</p>
-                        </div>
-                    </div>
                 </div>
             </div>
         );
@@ -327,19 +323,14 @@ export default function CasesPage() {
     return (
         <div className="min-h-screen bg-gray-50 p-6">
             <Sidebar />
-
-            {/* Header */}
             <div className="max-w-4xl mx-auto">
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-800">unseen.</h1>
                     <p className="text-gray-600 mt-2">Review and accept cases that match your expertise</p>
                 </div>
 
-
-
                 {/* Case Card */}
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden max-w-2xl mx-auto">
-                    {/* Case Header */}
                     <div className="bg-gradient-to-r from-green-600 to-green-700 p-6 text-white">
                         <div className="flex justify-between items-start mb-4">
                             <div>
@@ -361,9 +352,7 @@ export default function CasesPage() {
                         </div>
                     </div>
 
-                    {/* Case Details */}
                     <div className="p-6 space-y-6">
-                        {/* Legal Issue */}
                         <div>
                             <div className="flex items-center space-x-2 mb-2">
                                 <Scale className="w-5 h-5 text-green-600" />
@@ -372,13 +361,11 @@ export default function CasesPage() {
                             <p className="text-gray-700 bg-gray-50 px-3 py-2 rounded-md">{currentCase.legalIssue}</p>
                         </div>
 
-                        {/* Case Description */}
                         <div>
                             <h3 className="text-lg font-semibold text-gray-800 mb-2">Case Description</h3>
                             <p className="text-gray-700 leading-relaxed">{currentCase.caseDescription}</p>
                         </div>
 
-                        {/* Case Details Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="bg-gray-50 p-4 rounded-lg">
                                 <h4 className="text-sm font-medium text-gray-600 mb-1">Estimated Duration</h4>
@@ -400,7 +387,6 @@ export default function CasesPage() {
 
                     {/* Action Buttons */}
                     <div className="p-6 bg-gray-50">
-                        {/* View Details Button */}
                         <div className="flex justify-center mb-4">
                             <button
                                 onClick={() => setShowDetails(true)}
@@ -411,25 +397,8 @@ export default function CasesPage() {
                             </button>
                         </div>
 
-                        {/* Accept/Reject Buttons
-                        <div className="flex justify-center space-x-8">
-                            <button
-                                onClick={handleReject}
-                                className="w-16 h-16 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-110"
-                            >
-                                <X className="w-8 h-8" />
-                            </button>
-
-                            <button
-                                onClick={handleAccept}
-                                className="w-16 h-16 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-110"
-                            >
-                                <Check className="w-8 h-8" />
-                            </button>
-                        </div> */}
-
-                        {isProf &&
-                            <div className="p-8 bg-gray-50 flex justify-center space-x-8">
+                        {isProf && (
+                            <div className="p-4 flex justify-center space-x-8">
                                 <button
                                     onClick={handleReject}
                                     className="px-8 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center space-x-2 shadow-lg hover:shadow-xl transition-all duration-200"
@@ -446,7 +415,38 @@ export default function CasesPage() {
                                     <span>Accept Case</span>
                                 </button>
                             </div>
-                        }
+                        )}
+
+                        {/* Pagination */}
+                        {cases.length > 1 && (
+                            <div className="flex justify-center items-center space-x-4 mt-6">
+                                <button
+                                    onClick={() => setCurrentCaseIndex((prev) => Math.max(prev - 1, 0))}
+                                    disabled={currentCaseIndex === 0}
+                                    className={`px-4 py-2 rounded-lg text-white transition-all duration-200 shadow ${currentCaseIndex === 0
+                                        ? 'bg-gray-300 cursor-not-allowed'
+                                        : 'bg-green-500 hover:bg-green-600'
+                                        }`}
+                                >
+                                    Previous
+                                </button>
+
+                                <span className="text-gray-600 font-semibold">
+                                    Case {currentCaseIndex + 1} of {cases.length}
+                                </span>
+
+                                <button
+                                    onClick={() => setCurrentCaseIndex((prev) => Math.min(prev + 1, cases.length - 1))}
+                                    disabled={currentCaseIndex === cases.length - 1}
+                                    className={`px-4 py-2 rounded-lg text-white transition-all duration-200 shadow ${currentCaseIndex === cases.length - 1
+                                        ? 'bg-gray-300 cursor-not-allowed'
+                                        : 'bg-green-500 hover:bg-green-600'
+                                        }`}
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -464,4 +464,5 @@ export default function CasesPage() {
             </div>
         </div>
     );
-} 
+}
+
