@@ -23,7 +23,7 @@ export default function SignupPage() {
     location: '',
   });
 
-  const specializations = [
+  const specializations: string[] = [
     'Family Law',
     'Criminal Law',
     'Civil Law',
@@ -31,15 +31,29 @@ export default function SignupPage() {
     'Property Law',
     'Contract Law',
     'Immigration Law',
-    'Corporate Law',
-    'Tax Law',
-    'Intellectual Property',
-    'Environmental Law',
-    'Bankruptcy Law',
-    'Personal Injury',
-    'Real Estate Law',
-    'Other'
+    'Other',
   ];
+
+  enum Tag {
+    FAMILY_LAW = 'FAMILY_LAW',
+    CRIMINAL_LAW = 'CRIMINAL_LAW',
+    CIVIL_LAW = 'CIVIL_LAW',
+    EMPLOYMENT_LAW = 'EMPLOYMENT_LAW',
+    PROPERTY_LAW = 'PROPERTY_LAW',
+    CONTRACT_LAW = 'CONTRACT_LAW',
+    IMMIGRATION_LAW = 'IMMIGRATION_LAW',
+    OTHER = 'OTHER',
+  }
+
+  const displayToEnumTag = (label: string): Tag => {
+    const upper = label.toUpperCase().replace(/\s+/g, '_');
+    return Tag[upper as keyof typeof Tag];
+  };
+
+  const enumTagToDisplay = (tag: Tag): string => {
+    return tag.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+  };
+
 
 
 
@@ -83,7 +97,7 @@ export default function SignupPage() {
           email: formData.email,
           phone: formData.phone,
           password: formData.password,
-          specialization: formData.specialization ? [formData.specialization] : [],
+          specialization: formData.specialization,
           yearsOfExperience: parseInt(formData.yearsOfExperience),
           location: formData.location,
         }),
@@ -122,8 +136,8 @@ export default function SignupPage() {
         {/* Signup Form */}
         <div className="bg-white rounded-xl shadow-lg p-8">
           <div className="flex items-center justify-center mb-6">
-                    <div className="bg-green-100 p-3 rounded-full">
-          <Scale className="w-8 h-8 text-green-600" />
+            <div className="bg-green-100 p-3 rounded-full">
+              <Scale className="w-8 h-8 text-green-600" />
             </div>
           </div>
 
@@ -312,9 +326,9 @@ export default function SignupPage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select specialization</option>
-                {specializations.map((spec) => (
-                  <option key={spec} value={spec}>
-                    {spec}
+                {Object.values(Tag).map((specialization) => (
+                  <option key={specialization} value={specialization}>
+                    {enumTagToDisplay(specialization)}
                   </option>
                 ))}
               </select>

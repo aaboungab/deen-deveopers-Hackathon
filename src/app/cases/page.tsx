@@ -668,7 +668,7 @@ export default function LegalCaseSwipe() {
     }
 
     if (role !== 'professional') {
-      router.push('/')
+      router.push('/submit-case')
     }
 
     const fetchCases = async () => {
