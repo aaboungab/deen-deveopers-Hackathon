@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Eye, EyeOff, ArrowLeft, Scale, User, Mail, Phone, MapPin, Award, Clock } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft, Heart, User, Mail, Phone, MapPin, Award, Clock } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SignupPage() {
@@ -99,7 +99,7 @@ export default function SignupPage() {
         <div className="bg-white rounded-xl shadow-lg p-8">
           <div className="flex items-center justify-center mb-6">
                     <div className="bg-green-100 p-3 rounded-full">
-          <Scale className="w-8 h-8 text-green-600" />
+          <Heart className="w-8 h-8 text-green-600" />
             </div>
           </div>
 
