@@ -5,11 +5,11 @@ const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   try {
-    // Get all posted cases that haven't been assigned yet
+
     const cases = await prisma.legalCase.findMany({
       where: {
         status: 'POSTED',
-        assignedTo: null, // Only unassigned cases
+        assignedTo: null, 
       },
       orderBy: {
         postedDate: 'desc',
@@ -32,7 +32,6 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    // Transform the data to match the expected format
     const transformedCases = cases.map((caseItem: any) => ({
       id: caseItem.id,
       name: caseItem.clientName || 'Anonymous',
@@ -57,7 +56,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/cases - Create a new case
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -77,7 +75,6 @@ export async function POST(request: NextRequest) {
       tags = [],
     } = body;
 
-    // Validate required fields
     if (!legalIssue || !caseDescription) {
       return NextResponse.json(
         { error: 'Legal issue and case description are required' },

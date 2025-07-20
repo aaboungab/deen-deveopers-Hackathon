@@ -29,7 +29,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid or unavailable professional' }, { status: 400 });
     }
 
-    // Assign the case
     const updatedCase = await prisma.legalCase.update({
       where: { id: caseId },
       data: {
@@ -42,7 +41,6 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Log history
     await prisma.caseHistory.create({
       data: {
         legalCaseId: caseId,

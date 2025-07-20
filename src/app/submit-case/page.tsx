@@ -96,7 +96,7 @@ export default function SubmitCasePage() {
     );
   }
 
-  const legalIssues = [
+  const legalIssues: string[] = [
     'Family Law',
     'Criminal Law',
     'Civil Law',
@@ -106,6 +106,28 @@ export default function SubmitCasePage() {
     'Immigration Law',
     'Other',
   ];
+
+  enum Tag {
+    FAMILY_LAW = 'FAMILY_LAW',
+    CRIMINAL_LAW = 'CRIMINAL_LAW',
+    CIVIL_LAW = 'CIVIL_LAW',
+    EMPLOYMENT_LAW = 'EMPLOYMENT_LAW',
+    PROPERTY_LAW = 'PROPERTY_LAW',
+    CONTRACT_LAW = 'CONTRACT_LAW',
+    IMMIGRATION_LAW = 'IMMIGRATION_LAW',
+    OTHER = 'OTHER',
+  }
+
+  // Maps display name to Tag enum
+  const displayToEnumTag = (label: string): Tag => {
+    const upper = label.toUpperCase().replace(/\s+/g, '_');
+    return Tag[upper as keyof typeof Tag];
+  };
+
+  // Maps enum to display name
+  const enumTagToDisplay = (tag: Tag): string => {
+    return tag.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+  };
 
   const updateForm = (id: string, field: keyof CaseForm, value: any) => {
     setForms(forms.map(form =>
@@ -238,45 +260,6 @@ export default function SubmitCasePage() {
               </button>
 
               <div className="space-y-4">
-                {/* Client Information */}
-                {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Name/Nickname (optional)
-                    </label>
-                    <input
-                      type="text"
-                      value={form.clientName}
-                      onChange={(e) => updateForm(form.id, 'clientName', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                      placeholder="Enter your name or nickname"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email (optional)
-                    </label>
-                    <input
-                      type="email"
-                      value={form.clientEmail}
-                      onChange={(e) => updateForm(form.id, 'clientEmail', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                      placeholder="Enter your email"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Phone (optional)
-                    </label>
-                    <input
-                      type="tel"
-                      value={form.clientPhone}
-                      onChange={(e) => updateForm(form.id, 'clientPhone', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                      placeholder="Enter your phone number"
-                    />
-                  </div>
-                </div> */}
 
                 {/* Legal Issue */}
                 <div>
@@ -289,9 +272,9 @@ export default function SubmitCasePage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   >
                     <option value="">Select a legal issue</option>
-                    {legalIssues.map((issue) => (
+                    {Object.values(Tag).map((issue) => (
                       <option key={issue} value={issue}>
-                        {issue}
+                        {enumTagToDisplay(issue)}
                       </option>
                     ))}
                   </select>
@@ -406,15 +389,25 @@ export default function SubmitCasePage() {
                 {/* Tags */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tags (optional)
+                    Tags
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={form.tags}
                     onChange={(e) => updateForm(form.id, 'tags', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder="e.g., divorce, custody, property dispute"
-                  />
+                  >
+                    <option value="">Select a legal issue</option>
+                    {/* {legalIssues.map((issue) => (
+                      <option key={issue} value={issue}>
+                        {issue}
+                      </option>
+                    ))} */}
+                    {Object.values(Tag).map((tag) => (
+                      <option key={tag} value={tag}>
+                        {enumTagToDisplay(tag)}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Attachments */}
@@ -436,8 +429,8 @@ export default function SubmitCasePage() {
                     onClick={() => postForm(form.id)}
                     disabled={!form.legalIssue || !form.caseDescription}
                     className={`px-6 py-2 rounded-md transition-colors ${!form.legalIssue || !form.caseDescription
-                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                        : 'bg-green-600 text-white hover:bg-green-700'
+                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                      : 'bg-green-600 text-white hover:bg-green-700'
                       }`}
                   >
                     Post
