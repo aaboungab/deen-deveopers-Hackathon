@@ -92,7 +92,7 @@ export default function SignupPage() {
             Back to Home
           </Link>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">unseen.</h1>
-          <p className="text-gray-600">Join our network of legal professionals</p>
+          <p className="text-gray-600">Join the unseen community to get assistance</p>
         </div>
 
         {/* Signup Form */}
