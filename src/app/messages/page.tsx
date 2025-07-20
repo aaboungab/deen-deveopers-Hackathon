@@ -1,9 +1,9 @@
 import { MessagingThread } from "@/components/messages/mes";
 
 export default function MessagesPage() {
-    const threadId = 'cmdbvzrth0007u9acqgfmmxnq'; // from your message_threads table, looks good!
-    const currentUserId = 'cmdbvzrs00001u9accnr0kxb0'; // professionalId from that thread row
-    const senderType = 'PROFESSIONAL'; // fits with the professionalId user
+    const threadId = 'cmdbvzrth0007u9acqgfmmxnq'; 
+    const currentUserId = 'cmdbvzrs00001u9accnr0kxb0'; 
+    const senderType = 'PROFESSIONAL'; 
 
 
     return (
