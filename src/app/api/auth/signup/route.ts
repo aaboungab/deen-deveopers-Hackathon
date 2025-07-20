@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
           phone,
           password: hashedPassword,
           location,
-          specialization: JSON.stringify(specialization),
+          specialization: specialization,
           yearsOfExperience,
           isAvailable: true,
           isVerified: true,
