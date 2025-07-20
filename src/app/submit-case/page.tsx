@@ -239,7 +239,7 @@ export default function SubmitCasePage() {
 
               <div className="space-y-4">
                 {/* Client Information */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Name/Nickname (optional)
@@ -276,7 +276,7 @@ export default function SubmitCasePage() {
                       placeholder="Enter your phone number"
                     />
                   </div>
-                </div>
+                </div> */}
 
                 {/* Legal Issue */}
                 <div>

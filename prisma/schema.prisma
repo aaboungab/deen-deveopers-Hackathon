@@ -4,6 +4,7 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,140 +14,240 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model LegalCase {
-  id              String   @id @default(cuid())
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+// model LegalCase {
+//   id                     String           @id @default(cuid())
+//   createdAt              DateTime         @default(now())
+//   updatedAt              DateTime         @updatedAt
 
-  clientId        String?
-  client          LegalClient? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+//   // Client
+//   clientId               String?
+//   client                 LegalClient?     @relation(fields: [clientId], references: [id], onDelete: SetNull)
 
-  // Client Information
-  clientName      String?  // Name/Nickname (optional)
-  clientEmail     String?  // For contact purposes
-  clientPhone     String?  // For contact purposes
-  
-  // Case Details
-  legalIssue      String   // Type of legal issue (Family Law, Criminal Law, etc.)
-  caseDescription String   @db.Text // Detailed description of the case
-  location        String?  // Client's location (optional)
-  
-  // Case Status
-  status          CaseStatus @default(DRAFT)
-  urgency         UrgencyLevel @default(MEDIUM)
-  
-  // Professional Assignment
-  assignedTo      String?  // ID of the legal professional who accepted the case
-  assignedAt      DateTime?
-  assignedProfessional LegalProfessional? @relation("ProfessionalCases", fields: [assignedTo], references: [id])
-  
-  // Case Timeline
-  estimatedDuration String? // e.g., "3-6 months"
-  postedDate      DateTime @default(now())
-  
-  // Compensation
-  compensationMin Float?   // Minimum compensation amount
-  compensationMax Float?   // Maximum compensation amount
-  compensationCurrency String @default("USD")
-  
-  // Attachments
-  attachments     Attachment[]
-  
-  // Case History
-  caseHistory     CaseHistory[]
-  
-  // Tags for categorization (stored as JSON string)
-  tags           String? // JSON string of tags for better categorization
-  
-  @@map("legal_cases")
-}
+//   // Client Info
+//   clientName             String?
+//   clientEmail            String?
+//   clientPhone            String?
+
+//   // Case Details
+//   legalIssue             String
+//   caseDescription        String           @db.Text
+//   location               String?
+
+//   // Case Status
+//   status                 CaseStatus       @default(DRAFT)
+//   urgency                UrgencyLevel     @default(MEDIUM)
+
+//   // Assignment
+//   assignedTo             String?
+//   assignedAt             DateTime?
+//   assignedProfessional   LegalProfessional? @relation("ProfessionalCases", fields: [assignedTo], references: [id])
+
+//   // Case Timeline
+//   estimatedDuration      String?
+//   postedDate             DateTime         @default(now())
+
+//   // Compensation
+//   compensationMin        Float?
+//   compensationMax        Float?
+//   compensationCurrency   String           @default("USD")
+
+//   // Relations
+//   attachments            Attachment[]
+//   caseHistory            CaseHistory[]
+//   messageThreads         MessageThread[]
+//   tags                   Tag
+
+//   @@map("legal_cases")
+// }
 
 model Attachment {
-  id          String    @id @default(cuid())
-  createdAt   DateTime  @default(now())
-  
-  // File Information
-  fileName    String
-  fileSize    Int       // Size in bytes
-  fileType    String    // MIME type
-  fileUrl     String    // URL to the stored file
-  
-  // Relationship
-  legalCaseId String
-  legalCase   LegalCase @relation(fields: [legalCaseId], references: [id], onDelete: Cascade)
-  
+  id           String      @id @default(cuid())
+  link         String
+  dateAdded    DateTime    @default(now())
+  addedFrom    AddedFrom
+
+  // Relations
+  legalCaseId  String?
+  legalCase    LegalCase?  @relation(fields: [legalCaseId], references: [id], onDelete: Cascade)
+
+  messageId    String?
+  message      Message?    @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
   @@map("attachments")
+}
+
+enum AddedFrom {
+  LEGAL_CASE
+  MESSAGE
 }
 
 model CaseHistory {
   id          String    @id @default(cuid())
   createdAt   DateTime  @default(now())
-  
-  // Action Information
-  action      String    // e.g., "CREATED", "ASSIGNED", "STATUS_CHANGED"
-  description String    @db.Text // Detailed description of the action
-  performedBy String?   // ID of the user who performed the action
-  
-  // Relationship
+
+  action      String
+  description String    @db.Text
+  performedBy String?
+
   legalCaseId String
   legalCase   LegalCase @relation(fields: [legalCaseId], references: [id], onDelete: Cascade)
-  
+
   @@map("case_history")
 }
 
 model LegalClient {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String           @id @default(cuid())
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
-  firstName   String
-  lastName    String
-  email       String   @unique
-  phone       String?
-  location    String?
-  password    String?   // optional if you allow guest submissions
-  notes       String?   @db.Text
+  firstName       String
+  lastName        String
+  email           String           @unique
+  phone           String?
+  location        String?
+  password        String?
+  notes           String?          @db.Text
 
-  legalCases  LegalCase[]
-  
+  legalCases      LegalCase[]
+  messageThreads  MessageThread[]
+
   @@map("legal_clients")
 }
 
+// model LegalProfessional {
+//   id                  String           @id @default(cuid())
+//   createdAt           DateTime         @default(now())
+//   updatedAt           DateTime         @updatedAt
+
+//   firstName           String
+//   lastName            String
+//   email               String           @unique
+//   phone               String?
+//   password            String
+//   specialization      String?
+//   yearsOfExperience   Int
+//   location            String
+//   isAvailable         Boolean          @default(true)
+//   isVerified          Boolean          @default(false)
+//   verifiedAt          DateTime?
+
+//   assignedCases       LegalCase[]      @relation("ProfessionalCases")
+//   messageThreads      MessageThread[]
+
+//   @@map("legal_professionals")
+// }
+
+model MessageThread {
+  id              String            @id @default(cuid())
+  createdAt       DateTime          @default(now())
+
+  legalCaseId     String
+  legalCase       LegalCase         @relation(fields: [legalCaseId], references: [id], onDelete: Cascade)
+
+  clientId        String
+  client          LegalClient       @relation(fields: [clientId], references: [id])
+
+  professionalId  String
+  professional    LegalProfessional @relation(fields: [professionalId], references: [id])
+
+  messages        Message[]
+
+  @@map("message_threads")
+}
+
+model Message {
+  id          String      @id @default(cuid())
+  createdAt   DateTime    @default(now())
+
+  threadId    String
+  thread      MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  senderId    String
+  senderType  UserType
+  content     String       @db.Text
+  seen        Boolean      @default(false)
+
+  attachments Attachment[] // ✅ relation-based, no more String[]
+
+  @@map("messages")
+}
+
+
+
+model LegalCase {
+  id                     String           @id @default(cuid())
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+
+  // Client
+  clientId               String?
+  client                 LegalClient?     @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  // Client Info
+  clientName             String?
+  clientEmail            String?
+  clientPhone            String?
+
+  // Case Details
+  legalIssue             String
+  caseDescription        String           @db.Text
+  location               String?
+
+  // Case Status
+  status                 CaseStatus       @default(DRAFT)
+  urgency                UrgencyLevel     @default(MEDIUM)
+
+  // Assignment
+  assignedTo             String?
+  assignedAt             DateTime?
+  assignedProfessional   LegalProfessional? @relation("ProfessionalCases", fields: [assignedTo], references: [id])
+
+  // Case Timeline
+  estimatedDuration      String?
+  postedDate             DateTime         @default(now())
+
+  // Compensation
+  compensationMin        Float?
+  compensationMax        Float?
+  compensationCurrency   String           @default("USD")
+
+  // Relations
+  attachments            Attachment[]
+  caseHistory            CaseHistory[]
+  messageThreads         MessageThread[]
+  tags                   Tag
+
+  @@map("legal_cases")
+}
+
 model LegalProfessional {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  // Personal Information
-  firstName   String
-  lastName    String
-  email       String   @unique
-  phone       String?
-  
-  // Authentication
-  password    String   // Hashed password
-  
-  // Professional Information
-  specialization String? // JSON string of legal specializations
-  yearsOfExperience Int
-  
-  // Location
-  location    String
-  
-  // Availability
-  isAvailable Boolean @default(true)
-  
-  // Verification
-  isVerified  Boolean @default(false)
-  verifiedAt  DateTime?
-  
-  // Assigned Cases
-  assignedCases LegalCase[] @relation("ProfessionalCases")
-  
+  id                  String           @id @default(cuid())
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  firstName           String
+  lastName            String
+  email               String           @unique
+  phone               String?
+  password            String
+  specialization      Tag              // <-- now an enum type
+  yearsOfExperience   Int
+  location            String
+  isAvailable         Boolean          @default(true)
+  isVerified          Boolean          @default(false)
+  verifiedAt          DateTime?
+
+  assignedCases       LegalCase[]      @relation("ProfessionalCases")
+  messageThreads      MessageThread[]
+
   @@map("legal_professionals")
 }
 
-// Enums
+enum UserType {
+  CLIENT
+  PROFESSIONAL
+}
+
 enum CaseStatus {
   DRAFT
   POSTED
@@ -162,6 +263,417 @@ enum UrgencyLevel {
   HIGH
   URGENT
 }
+
+enum Tag {
+  FAMILY_LAW
+  CRIMINAL_LAW
+  CIVIL_LAW
+  EMPLOYMENT_LAW
+  PROPERTY_LAW
+  CONTRACT_LAW
+  IMMIGRATION_LAW
+  OTHER
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// generator client {
+//   provider = "prisma-client-js"
+// }
+
+// datasource db {
+//   provider = "mysql"
+//   url      = env("DATABASE_URL")
+// }
+
+// model LegalCase {
+//   id              String   @id @default(cuid())
+//   createdAt       DateTime @default(now())
+//   updatedAt       DateTime @updatedAt
+
+//   clientId        String?
+//   client          LegalClient? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+//   // Client Information
+//   clientName      String?
+//   clientEmail     String?
+//   clientPhone     String?
+  
+//   // Case Details
+//   legalIssue      String
+//   caseDescription String   @db.Text
+//   location        String?
+  
+//   // Case Status
+//   status          CaseStatus @default(DRAFT)
+//   urgency         UrgencyLevel @default(MEDIUM)
+  
+//   // Professional Assignment
+//   assignedTo      String?
+//   assignedAt      DateTime?
+//   assignedProfessional LegalProfessional? @relation("ProfessionalCases", fields: [assignedTo], references: [id])
+  
+//   // Case Timeline
+//   estimatedDuration String?
+//   postedDate      DateTime @default(now())
+  
+//   // Compensation
+//   compensationMin Float?
+//   compensationMax Float?
+//   compensationCurrency String @default("USD")
+  
+//   // Relations
+//   // attachments     Attachment[]
+//   attachments     String
+//   caseHistory     CaseHistory[]
+//   messageThreads  MessageThread[] // ✅ back-relation to threads
+  
+//   // Tags
+//   tags            Tag
+
+//   @@map("legal_cases")
+// }
+
+// // model Attachment {
+// //   id          String    @id @default(cuid())
+// //   createdAt   DateTime  @default(now())
+
+// //   fileName    String
+// //   fileSize    Int
+// //   fileType    String
+// //   fileUrl     String
+
+// //   legalCaseId String
+// //   legalCase   LegalCase @relation(fields: [legalCaseId], references: [id], onDelete: Cascade)
+
+// //   messages    Message[] // ✅ allow attachments to link to messages
+
+// //   @@map("attachments")
+// // }
+
+// model CaseHistory {
+//   id          String    @id @default(cuid())
+//   createdAt   DateTime  @default(now())
+
+//   action      String
+//   description String   @db.Text
+//   performedBy String?
+
+//   legalCaseId String
+//   legalCase   LegalCase @relation(fields: [legalCaseId], references: [id], onDelete: Cascade)
+
+//   @@map("case_history")
+// }
+
+// model LegalClient {
+//   id          String   @id @default(cuid())
+//   createdAt   DateTime @default(now())
+//   updatedAt   DateTime @updatedAt
+
+//   firstName   String
+//   lastName    String
+//   email       String   @unique
+//   phone       String?
+//   location    String?
+//   password    String?
+//   notes       String?   @db.Text
+
+//   legalCases  LegalCase[]
+//   messageThreads MessageThread[] // ✅ back-relation
+
+//   @@map("legal_clients")
+// }
+
+// model LegalProfessional {
+//   id          String   @id @default(cuid())
+//   createdAt   DateTime @default(now())
+//   updatedAt   DateTime @updatedAt
+
+//   firstName   String
+//   lastName    String
+//   email       String   @unique
+//   phone       String?
+//   password    String
+//   specialization String?
+//   yearsOfExperience Int
+//   location    String
+//   isAvailable Boolean @default(true)
+//   isVerified  Boolean @default(false)
+//   verifiedAt  DateTime?
+
+//   assignedCases LegalCase[] @relation("ProfessionalCases")
+//   messageThreads MessageThread[] // ✅ back-relation
+
+//   @@map("legal_professionals")
+// }
+
+// model MessageThread {
+//   id              String   @id @default(cuid())
+//   createdAt       DateTime @default(now())
+
+//   // Participants
+//   legalCaseId     String
+//   legalCase       LegalCase @relation(fields: [legalCaseId], references: [id], onDelete: Cascade)
+
+//   clientId        String
+//   client          LegalClient @relation(fields: [clientId], references: [id])
+
+//   professionalId  String
+//   professional    LegalProfessional @relation(fields: [professionalId], references: [id])
+
+//   messages        Message[]
+
+//   @@map("message_threads")
+// }
+
+// model Message {
+//   id          String   @id @default(cuid())
+//   createdAt   DateTime @default(now())
+
+//   threadId    String
+//   thread      MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+//   senderId    String
+//   senderType  UserType
+//   content     String   @db.Text
+//   seen        Boolean  @default(false)
+
+//   // attachments Attachment[] // optional
+//   attachments String // optional
+
+//   @@map("messages")
+// }
+
+// enum UserType {
+//   CLIENT
+//   PROFESSIONAL
+// }
+
+// enum CaseStatus {
+//   DRAFT
+//   POSTED
+//   ASSIGNED
+//   IN_PROGRESS
+//   COMPLETED
+//   CANCELLED
+// }
+
+// enum UrgencyLevel {
+//   LOW
+//   MEDIUM
+//   HIGH
+//   URGENT
+// }
+
+// enum Tag {
+//   FAMILY_LAW
+//   CRIMINAL_LAW
+//   CIVIL_LAW
+//   EMPLOYMENT_LAW
+//   PROPERTY_LAW
+//   CONTRACT_LAW
+//   IMMIGRATION_LAW
+//   OTHER
+// }
+
+
+
+
+
+
+// generator client {
+//   provider = "prisma-client-js"
+// }
+
+// datasource db {
+//   provider = "mysql"
+//   url      = env("DATABASE_URL")
+// }
+
+// model LegalCase {
+//   id              String   @id @default(cuid())
+//   createdAt       DateTime @default(now())
+//   updatedAt       DateTime @updatedAt
+
+//   clientId        String?
+//   client          LegalClient? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+//   // Client Information
+//   clientName      String?  // Name/Nickname (optional)
+//   clientEmail     String?  // For contact purposes
+//   clientPhone     String?  // For contact purposes
+  
+//   // Case Details
+//   legalIssue      String   // Type of legal issue (Family Law, Criminal Law, etc.)
+//   caseDescription String   @db.Text // Detailed description of the case
+//   location        String?  // Client's location (optional)
+  
+//   // Case Status
+//   status          CaseStatus @default(DRAFT)
+//   urgency         UrgencyLevel @default(MEDIUM)
+  
+//   // Professional Assignment
+//   assignedTo      String?  // ID of the legal professional who accepted the case
+//   assignedAt      DateTime?
+//   assignedProfessional LegalProfessional? @relation("ProfessionalCases", fields: [assignedTo], references: [id])
+  
+//   // Case Timeline
+//   estimatedDuration String? // e.g., "3-6 months"
+//   postedDate      DateTime @default(now())
+  
+//   // Compensation
+//   compensationMin Float?   // Minimum compensation amount
+//   compensationMax Float?   // Maximum compensation amount
+//   compensationCurrency String @default("USD")
+  
+//   // Attachments
+//   attachments     Attachment[]
+  
+//   // Case History
+//   caseHistory     CaseHistory[]
+  
+//   // Tags for categorization (stored as JSON string)
+//   tags           String? // JSON string of tags for better categorization
+  
+//   @@map("legal_cases")
+// }
+
+// model Attachment {
+//   id          String    @id @default(cuid())
+//   createdAt   DateTime  @default(now())
+  
+//   // File Information
+//   fileName    String
+//   fileSize    Int       // Size in bytes
+//   fileType    String    // MIME type
+//   fileUrl     String    // URL to the stored file
+  
+//   // Relationship
+//   legalCaseId String
+//   legalCase   LegalCase @relation(fields: [legalCaseId], references: [id], onDelete: Cascade)
+  
+//   @@map("attachments")
+// }
+
+// model CaseHistory {
+//   id          String    @id @default(cuid())
+//   createdAt   DateTime  @default(now())
+  
+//   // Action Information
+//   action      String    // e.g., "CREATED", "ASSIGNED", "STATUS_CHANGED"
+//   description String    @db.Text // Detailed description of the action
+//   performedBy String?   // ID of the user who performed the action
+  
+//   // Relationship
+//   legalCaseId String
+//   legalCase   LegalCase @relation(fields: [legalCaseId], references: [id], onDelete: Cascade)
+  
+//   @@map("case_history")
+// }
+
+// model LegalClient {
+//   id          String   @id @default(cuid())
+//   createdAt   DateTime @default(now())
+//   updatedAt   DateTime @updatedAt
+
+//   firstName   String
+//   lastName    String
+//   email       String   @unique
+//   phone       String?
+//   location    String?
+//   password    String?   // optional if you allow guest submissions
+//   notes       String?   @db.Text
+
+//   legalCases  LegalCase[]
+  
+//   @@map("legal_clients")
+// }
+
+// model LegalProfessional {
+//   id          String   @id @default(cuid())
+//   createdAt   DateTime @default(now())
+//   updatedAt   DateTime @updatedAt
+  
+//   // Personal Information
+//   firstName   String
+//   lastName    String
+//   email       String   @unique
+//   phone       String?
+  
+//   // Authentication
+//   password    String   // Hashed password
+  
+//   // Professional Information
+//   specialization String? // JSON string of legal specializations
+//   yearsOfExperience Int
+  
+//   // Location
+//   location    String
+  
+//   // Availability
+//   isAvailable Boolean @default(true)
+  
+//   // Verification
+//   isVerified  Boolean @default(false)
+//   verifiedAt  DateTime?
+  
+//   // Assigned Cases
+//   assignedCases LegalCase[] @relation("ProfessionalCases")
+  
+//   @@map("legal_professionals")
+// }
+
+// // Enums
+// enum CaseStatus {
+//   DRAFT
+//   POSTED
+//   ASSIGNED
+//   IN_PROGRESS
+//   COMPLETED
+//   CANCELLED
+// }
+
+// enum UrgencyLevel {
+//   LOW
+//   MEDIUM
+//   HIGH
+//   URGENT
+// }
 
 
 
