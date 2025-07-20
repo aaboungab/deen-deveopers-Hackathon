@@ -51,22 +51,6 @@ export default function SubmitCasePage() {
       tags: '',
       attachments: [],
     },
-    {
-      id: '2',
-      clientName: '',
-      clientEmail: '',
-      clientPhone: '',
-      legalIssue: '',
-      caseDescription: '',
-      location: '',
-      urgency: 'MEDIUM',
-      estimatedDuration: '',
-      compensationMin: '',
-      compensationMax: '',
-      compensationCurrency: 'USD',
-      tags: '',
-      attachments: [],
-    },
   ]);
 
   const [posted, setPosted] = useState<CaseForm[]>([]);
