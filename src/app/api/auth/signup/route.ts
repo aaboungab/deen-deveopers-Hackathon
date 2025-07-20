@@ -214,7 +214,7 @@ export async function POST(request: NextRequest) {
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
-    console.error('Password hashed');
+    console.error('Password is hashed');
 
     if (userType === 'professional') {
       if (!yearsOfExperience || !specialization) {
